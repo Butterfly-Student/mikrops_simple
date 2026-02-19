@@ -1,0 +1,13 @@
+	users := make([]PPoEUser, 0, len(reply.Re))
+	for _, re := range reply.Re {
+		users = append(users, PPoEUser{
+			Name:      re.Map["name"],
+			Service:   re.Map["service"],
+			Profile:   re.Map["profile"],
+			CallerID: re.Map["caller-id"],
+			Disabled: re.Map["disabled"] == "true",
+			LastLogin: re.Map["last-logged-out"],
+		})
+	}
+
+	return users, nil

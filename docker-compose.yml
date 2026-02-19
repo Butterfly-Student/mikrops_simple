@@ -1,0 +1,43 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: gembok-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: gembok_db
+      MYSQL_USER: gembok
+      MYSQL_PASSWORD: gembok
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - gembok-network
+
+  # backend:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: gembok-backend
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - mysql
+  #   environment:
+  #     - DB_HOST=mysql
+  #     - DB_PORT=3306
+  #     - DB_NAME=gembok_db
+  #     - DB_USER=gembok
+  #     - DB_PASSWORD=gembok
+  #   volumes:
+  #     - ./configs:/root/configs
+  #     - ./logs:/root/logs
+  #   networks:
+  #     - gembok-network
+
+volumes:
+  mysql_data:
+
+networks:
+  gembok-network:
+    driver: bridge
