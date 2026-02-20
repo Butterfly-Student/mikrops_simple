@@ -1,0 +1,95 @@
+# include common.http
+
+# =============================================================================
+# CUSTOMER MANAGEMENT ENDPOINTS
+# =============================================================================
+
+@baseUrl = http://localhost:8080/api
+@contentType = application/json
+@adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InN1cGVyYWRtaW4iLCJyb2xlIjoic3VwZXJhZG1pbiIsImV4cCI6MTc3MTYwMDMxMiwibmJmIjoxNzcxNTk2NzEyLCJpYXQiOjE3NzE1OTY3MTJ9.tZqYr5QMErCAcPEikqNZEN1WiLLpAKh9orKTPokEdLE
+@portalToken =
+
+### Get Customers List (with filters)
+GET {{baseUrl}}/customers?status=active&limit=10&offset=0
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Get Customer by ID
+GET {{baseUrl}}/customers/1
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Create Customer
+# DTO: CustomerDetail (create request)
+POST {{baseUrl}}/customers
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "John Doe",
+  "phone": "081234567893",
+  "email": "john@example.com",
+  "address": "Jl. Contoh No. 123",
+  "package_id": 1,
+  "pppoe_username": "johndoezaed",
+  "pppoe_password": "securepass123",
+  "router_id": 2,
+  "onu_serial": "ALCL12345678",
+  "onu_mac_address": "AA:BB:CC:DD:EE:FF",
+  "latitude": -6.200000,
+  "longitude": 106.816666
+}
+
+### Update Customer
+PUT {{baseUrl}}/customers/1
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "John Doe Updated",
+  "phone": "081234567899",
+  "email": "john.updated@example.com",
+  "address": "Jl. Baru No. 456",
+  "status": "active",
+  "package_id": 2
+}
+
+### Delete Customer
+DELETE {{baseUrl}}/customers/1
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Isolate Customer
+POST {{baseUrl}}/customers/1/isolate
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Activate Customer
+POST {{baseUrl}}/customers/1/activate
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Bulk Isolate Customers
+# DTO: BulkOperationRequest
+POST {{baseUrl}}/customers/bulk-isolate
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "customer_ids": [1, 2, 3]
+}
+
+### Bulk Activate Customers
+# DTO: BulkOperationRequest
+POST {{baseUrl}}/customers/bulk-activate
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "customer_ids": [1, 2, 3]
+}
+
+### Sync Customer with Router
+POST {{baseUrl}}/customers/1/sync
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}

@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mikrops-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mikrops_simple
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init:/docker-entrypoint-initdb.d:01_init.sql
+    networks:
+      - mikrops-network
+    healthcheck:
+      test: ["mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mikrops-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: mikrops_simple
+      DB_USER: root
+      DB_PASSWORD: root
+      # JWT config
+      JWT_SECRET: your-secret-key-change-this-in-production
+      JWT_EXPIRATION: 3600s
+      # Server config
+      SERVER_PORT: 8080
+      SERVER_MODE: debug
+      # RBAC config (new)
+      RBAC_EVENT_SYSTEM_TYPE: memory
+      RBAC_AUDIT_ENABLED: "true"
+      RBAC_AUDIT_LOG_LEVEL: info
+      # Default superadmin credentials
+      RBAC_DEFAULT_SUPERADMIN_USERNAME: superadmin
+      RBAC_DEFAULT_SUPERADMIN_PASSWORD: ChangeMe123!
+      RBAC_DEFAULT_SUPERADMIN_EMAIL: superadmin@mikrops.local
+    volumes:
+      - ./configs:/app/configs
+      - ./logs:/app/logs
+      - ./data:/app/data
+    networks:
+      - mikrops-network
+    restart: unless-stopped
+
+  # Optional: RabbitMQ for distributed event system
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: mikrops-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - mikrops-network
+    profiles:
+      with-rabbitmq:
+        rabbitmq: {}
+
+volumes:
+  mysql_data:
+  rabbitmq_data:
+
+networks:
+  mikrops-network:
+    driver: bridge

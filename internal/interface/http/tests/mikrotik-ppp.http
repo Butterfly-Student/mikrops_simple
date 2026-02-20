@@ -1,0 +1,73 @@
+# include common.http
+
+# =============================================================================
+# MIKROTIK PPPoE MANAGEMENT ENDPOINTS
+# =============================================================================
+
+@baseUrl = http://localhost:8080/api
+@contentType = application/json
+@adminToken =
+@portalToken =
+
+### Get PPP Users List
+# Response: PPPUsersResponse
+GET {{baseUrl}}/mikrotik/ppp/users?router_id=1&limit=20
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Get Active PPP Sessions
+# Response: ActiveSessionsResponse
+GET {{baseUrl}}/mikrotik/ppp/active?router_id=1
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Get PPP Profiles
+# Response: ProfilesResponse
+GET {{baseUrl}}/mikrotik/ppp/profiles?router_id=1
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Add PPP User
+# DTO: AddPPPUserRequest
+POST {{baseUrl}}/mikrotik/ppp/users
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "username": "newuser001",
+  "password": "userpass123",
+  "profile": "package-10mbps",
+  "service": "pppoe",
+  "router_id": 1
+}
+
+### Update PPP User
+# DTO: UpdatePPPUserRequest
+PUT {{baseUrl}}/mikrotik/ppp/users/newuser001
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "profile": "package-20mbps",
+  "disabled": false
+}
+
+### Remove PPP User
+DELETE {{baseUrl}}/mikrotik/ppp/users/newuser001
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "router_id": 1
+}
+
+### Disconnect PPP User
+# DTO: DisconnectUserRequest
+POST {{baseUrl}}/mikrotik/ppp/users/newuser001/disconnect
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "username": "newuser001",
+  "router_id": 1
+}

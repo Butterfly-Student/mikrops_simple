@@ -21,6 +21,8 @@ func SetupRouter(
 	ticketHandler *handlers.TroubleTicketHandler,
 	portalHandler *handlers.PortalHandler,
 	whatsappHandler *handlers.WhatsAppHandler,
+	hotspotHandler *handlers.HotspotHandler,
+	casbinHandler *handlers.CasbinHandler,
 ) *gin.Engine {
 	if cfg.Server.Mode == "release" {
 		gin.SetMode(gin.ReleaseMode)
@@ -100,9 +102,39 @@ func SetupRouter(
 		api.DELETE("/mikrotik/ppp/users/:username", mikrotikHandler.RemovePPPUser)
 		api.POST("/mikrotik/ppp/users/:username/disconnect", mikrotikHandler.DisconnectUser)
 
-		// MikroTik Hotspot & Traffic
-		api.GET("/mikrotik/hotspot/logs", mikrotikHandler.GetHotspotLog)
-		api.GET("/mikrotik/traffic", mikrotikHandler.GetTraffic)
+		// MikroTik Hotspot Management
+		api.GET("/hotspot/profiles", hotspotHandler.GetProfiles)
+		api.POST("/hotspot/profiles", hotspotHandler.CreateProfile)
+		api.GET("/hotspot/profiles/:name", hotspotHandler.GetProfile)
+		api.PUT("/hotspot/profiles/:name", hotspotHandler.UpdateProfile)
+		api.DELETE("/hotspot/profiles/:name", hotspotHandler.DeleteProfile)
+
+		// Hotspot Users
+		api.GET("/hotspot/users", hotspotHandler.GetUsers)
+		api.GET("/hotspot/users/:username", hotspotHandler.GetUser)
+		api.POST("/hotspot/users", hotspotHandler.CreateUser)
+		api.PUT("/hotspot/users/:username", hotspotHandler.UpdateUser)
+		api.DELETE("/hotspot/users/:username", hotspotHandler.DeleteUser)
+		api.POST("/hotspot/users/:username/disable", hotspotHandler.DisableUser)
+		api.POST("/hotspot/users/:username/enable", hotspotHandler.EnableUser)
+		api.POST("/hotspot/users/expired/remove", hotspotHandler.RemoveExpiredUsers)
+		api.POST("/hotspot/users/unused/remove", hotspotHandler.RemoveUnusedVouchers)
+
+		// Hotspot Vouchers
+		api.POST("/hotspot/vouchers/generate", hotspotHandler.GenerateVouchers)
+		api.GET("/hotspot/vouchers/prefix/:prefix", hotspotHandler.GetVouchersByPrefix)
+		api.GET("/hotspot/vouchers/:username", hotspotHandler.PrintVoucher)
+
+		// Hotspot Sales
+		api.POST("/hotspot/sales", hotspotHandler.RecordSale)
+		api.GET("/hotspot/sales", hotspotHandler.GetSales)
+		api.GET("/hotspot/sales/revenue", hotspotHandler.GetTotalRevenue)
+
+		// Hotspot Sessions
+		api.GET("/hotspot/sessions", hotspotHandler.GetActiveSessions)
+		api.GET("/hotspot/sessions/:username", hotspotHandler.GetSession)
+		api.POST("/hotspot/sessions/:username/disconnect", hotspotHandler.DisconnectUser)
+		api.GET("/hotspot/sessions/stats", hotspotHandler.GetSessionStats)
 
 		// GenieACS
 		api.GET("/genieacs/devices", genieacsHandler.GetDevices)
@@ -125,6 +157,13 @@ func SetupRouter(
 		api.GET("/tickets/:id", ticketHandler.GetByID)
 		api.POST("/tickets", ticketHandler.Create)
 		api.PUT("/tickets/:id", ticketHandler.Update)
+
+		// Casbin Policy Management (superadmin only)
+		api.GET("/casbin/policies", casbinHandler.GetAllPolicies)
+		api.POST("/casbin/policies", casbinHandler.CreatePolicy)
+		api.DELETE("/casbin/policies", casbinHandler.DeletePolicy)
+		api.POST("/casbin/reload", casbinHandler.ReloadPolicies)
+		api.POST("/casbin/check", casbinHandler.CheckPermission)
 	}
 
 	// ----- Customer portal protected routes -----

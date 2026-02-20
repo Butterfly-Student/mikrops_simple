@@ -1,0 +1,84 @@
+# include common.http
+
+# =============================================================================
+# ROUTER MANAGEMENT ENDPOINTS
+# =============================================================================
+
+@baseUrl = http://localhost:8080/api
+@contentType = application/json
+@adminToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InN1cGVyYWRtaW4iLCJyb2xlIjoic3VwZXJhZG1pbiIsImV4cCI6MTc3MTYwMDMxMiwibmJmIjoxNzcxNTk2NzEyLCJpYXQiOjE3NzE1OTY3MTJ9.tZqYr5QMErCAcPEikqNZEN1WiLLpAKh9orKTPokEdLE
+@portalToken =
+
+### Get All Routers
+GET {{baseUrl}}/routers
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Get Active Routers Only
+GET {{baseUrl}}/routers/active
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Get Router by ID
+GET {{baseUrl}}/routers/1
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Create Router
+# DTO: RouterCreate
+POST {{baseUrl}}/routers
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Router-Lokal",
+  "host": "192.168.233.1",
+  "username": "admin",
+  "password": "r00t",
+  "port": 8728,
+  "is_active": true
+}
+
+### Update Router
+# DTO: RouterUpdate
+PUT {{baseUrl}}/routers/1
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Router-Branch-A-Updated",
+  "host": "192.168.88.1",
+  "port": 8728,
+  "is_active": true
+}
+
+### Delete Router
+DELETE {{baseUrl}}/routers/1
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Test Router Connection
+# Response: ConnectionTestResult
+POST {{baseUrl}}/routers/1/test
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Set Router Active Status
+PUT {{baseUrl}}/routers/1/activate
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "is_active": true
+}
+
+### Get Router Status
+# Response: RouterStatus
+GET {{baseUrl}}/routers/1/status
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Get All Routers Status
+GET {{baseUrl}}/routers/status/all
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}

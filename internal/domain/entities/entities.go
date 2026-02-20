@@ -9,6 +9,7 @@ type AdminUser struct {
 	Email     string    `json:"email"`
 	Role      string    `gorm:"default:'admin'" json:"role"`
 	Status    string    `gorm:"default:'active'" json:"status"`
+	IsActive  bool      `gorm:"default:true" json:"is_active"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -21,14 +22,14 @@ type Customer struct {
 	Address        string     `gorm:"type:text" json:"address"`
 	PackageID      uint       `json:"package_id"`
 	Package        *Package   `gorm:"foreignKey:PackageID" json:"package,omitempty"`
-	PPPoEUsername  string     `gorm:"uniqueIndex" json:"pppoe_username"`
-	PPPoEPassword  string     `gorm:"not null" json:"-"`
+	PPPoEUsername  string     `gorm:"column:pppoe_username;uniqueIndex" json:"pppoe_username"`
+	PPPoEPassword  string     `gorm:"column:pppoe_password;not null" json:"-"`
 	Status         string     `gorm:"default:'active'" json:"status"`
 	RouterID       uint       `json:"router_id"`
-	ONUID          string     `json:"onu_id"`
+	ONUID          string     `gorm:"column:onu_id" json:"onu_id"`
 	ONUSerial      string     `json:"onu_serial"`
 	ONUMacAddress  string     `json:"onu_mac_address"`
-	ONUIPAddress   string     `json:"onu_ip_address"`
+	ONUIPAddress   string     `gorm:"column:onu_ip_address" json:"onu_ip_address"`
 	Latitude       float64    `json:"latitude"`
 	Longitude      float64    `json:"longitude"`
 	IsolationDate  *time.Time `json:"isolation_date,omitempty"`
@@ -83,7 +84,7 @@ type ONULocation struct {
 	CustomerID     uint      `gorm:"not null;index" json:"customer_id"`
 	Customer       *Customer `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
 	RouterID       uint      `json:"router_id"`
-	ONUID          string    `gorm:"uniqueIndex" json:"onu_id"`
+	ONUID          string    `gorm:"column:onu_id;uniqueIndex" json:"onu_id"`
 	SerialNumber   string    `json:"serial_number"`
 	MacAddress     string    `json:"mac_address"`
 	IPAddress      string    `json:"ip_address"`

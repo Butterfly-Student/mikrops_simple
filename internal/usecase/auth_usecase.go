@@ -45,6 +45,10 @@ func (u *AuthUsecase) Login(username, password string) (*LoginResponse, error) {
 		return nil, fmt.Errorf("account is not active")
 	}
 
+	if !admin.IsActive {
+		return nil, fmt.Errorf("account is disabled")
+	}
+
 	if !utils.CheckPassword(password, admin.Password) {
 		return nil, fmt.Errorf("invalid username or password")
 	}

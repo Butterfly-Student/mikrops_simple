@@ -5,8 +5,10 @@ import (
 
 	"github.com/alijayanet/gembok-backend/internal/interface/dto"
 	"github.com/alijayanet/gembok-backend/internal/usecase"
+	"github.com/alijayanet/gembok-backend/pkg/logger"
 	"github.com/alijayanet/gembok-backend/pkg/utils"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type MikroTikHandler struct {
@@ -25,7 +27,11 @@ func (h *MikroTikHandler) GetPPPUsers(c *gin.Context) {
 
 	result, err := h.mikrotikUC.GetPPPUsers(uint(routerID))
 	if err != nil {
-		utils.SendError(c, 500, "Failed to get PPP users")
+		logger.Error("GetPPPUsers failed",
+			zap.Uint64("router_id", routerID),
+			zap.Error(err),
+		)
+		utils.SendError(c, 500, "Gagal mengambil PPP users: "+err.Error())
 		return
 	}
 
@@ -38,7 +44,11 @@ func (h *MikroTikHandler) GetActiveSessions(c *gin.Context) {
 
 	result, err := h.mikrotikUC.GetActiveSessions(uint(routerID))
 	if err != nil {
-		utils.SendError(c, 500, "Failed to get active sessions")
+		logger.Error("GetActiveSessions failed",
+			zap.Uint64("router_id", routerID),
+			zap.Error(err),
+		)
+		utils.SendError(c, 500, "Gagal mengambil active sessions: "+err.Error())
 		return
 	}
 
@@ -51,7 +61,11 @@ func (h *MikroTikHandler) GetPPPProfiles(c *gin.Context) {
 
 	result, err := h.mikrotikUC.GetPPPProfiles(uint(routerID))
 	if err != nil {
-		utils.SendError(c, 500, "Failed to get PPP profiles")
+		logger.Error("GetPPPProfiles failed",
+			zap.Uint64("router_id", routerID),
+			zap.Error(err),
+		)
+		utils.SendError(c, 500, "Gagal mengambil PPP profiles: "+err.Error())
 		return
 	}
 
@@ -66,7 +80,11 @@ func (h *MikroTikHandler) AddPPPUser(c *gin.Context) {
 	}
 
 	if err := h.mikrotikUC.AddPPPUser(&req); err != nil {
-		utils.SendError(c, 500, "Failed to add PPP user")
+		logger.Error("AddPPPUser failed",
+			zap.String("username", req.Username),
+			zap.Error(err),
+		)
+		utils.SendError(c, 500, "Gagal menambahkan PPP user: "+err.Error())
 		return
 	}
 
@@ -85,7 +103,11 @@ func (h *MikroTikHandler) UpdatePPPUser(c *gin.Context) {
 	}
 
 	if err := h.mikrotikUC.UpdatePPPUser(username, uint(routerID), params); err != nil {
-		utils.SendError(c, 500, "Failed to update PPP user")
+		logger.Error("UpdatePPPUser failed",
+			zap.String("username", username),
+			zap.Error(err),
+		)
+		utils.SendError(c, 500, "Gagal mengupdate PPP user: "+err.Error())
 		return
 	}
 
@@ -98,7 +120,11 @@ func (h *MikroTikHandler) RemovePPPUser(c *gin.Context) {
 	routerID, _ := strconv.ParseUint(routerIDStr, 10, 32)
 
 	if err := h.mikrotikUC.RemovePPPUser(username, uint(routerID)); err != nil {
-		utils.SendError(c, 500, "Failed to remove PPP user")
+		logger.Error("RemovePPPUser failed",
+			zap.String("username", username),
+			zap.Error(err),
+		)
+		utils.SendError(c, 500, "Gagal menghapus PPP user: "+err.Error())
 		return
 	}
 
@@ -111,7 +137,11 @@ func (h *MikroTikHandler) DisconnectUser(c *gin.Context) {
 	routerID, _ := strconv.ParseUint(routerIDStr, 10, 32)
 
 	if err := h.mikrotikUC.DisconnectUser(username, uint(routerID)); err != nil {
-		utils.SendError(c, 500, "Failed to disconnect user")
+		logger.Error("DisconnectUser failed",
+			zap.String("username", username),
+			zap.Error(err),
+		)
+		utils.SendError(c, 500, "Gagal disconnect user: "+err.Error())
 		return
 	}
 

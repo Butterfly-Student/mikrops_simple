@@ -1,0 +1,63 @@
+# =============================================================================
+# AUTHENTICATION - EXECUTE THIS FIRST TO GET TOKEN
+# =============================================================================
+# Variables from .env file
+@baseUrl = http://localhost:8080/api
+@contentType = application/json
+@adminToken =
+@portalToken =
+
+
+# =============================================================================
+# ADMIN AUTHENTICATION
+# =============================================================================
+
+### Admin Login (RUN THIS FIRST!)
+# @name adminLogin
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "superadmin",
+  "password": "admin123"
+}
+
+> {%
+    // Save token to GLOBAL variable (shared across all .http files)
+    client.global.set("adminToken", response.body.data.token);
+    client.global.set("adminRefreshToken", response.body.data.refreshToken);
+%}
+
+### Admin Logout
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Get Current Admin Profile
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+# =============================================================================
+# PORTAL AUTHENTICATION (Customer)
+# =============================================================================
+
+### Portal Login (Customer)
+# @name portalLogin
+POST {{baseUrl}}/portal/login
+Content-Type: {{contentType}}
+
+{
+  "username": "johndoe",
+  "password": "customerpass123"
+}
+
+> {%
+    // Save portal token to GLOBAL variable
+    client.global.set("portalToken", response.body.data.token);
+%}
+
+### Get Portal Profile
+GET {{baseUrl}}/portal/profile
+Authorization: Bearer {{portalToken}}
+Content-Type: {{contentType}}

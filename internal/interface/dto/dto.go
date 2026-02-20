@@ -105,3 +105,39 @@ type PackageResponse struct {
 	CreatedAt   string  `json:"created_at"`
 	UpdatedAt   string  `json:"updated_at"`
 }
+
+type CreatePolicyRequest struct {
+	Subject string `json:"subject" binding:"required"`
+	Object  string `json:"object" binding:"required"`
+	Action  string `json:"action" binding:"required"`
+	Owner   string `json:"owner"`
+}
+
+type PolicyResponse struct {
+	ID      string `json:"id"`
+	Subject string `json:"subject"`
+	Object  string `json:"object"`
+	Action  string `json:"action"`
+	Owner   string `json:"owner"`
+}
+
+type CheckPermissionRequest struct {
+	Role     string `json:"role" binding:"required"`
+	Resource string `json:"resource" binding:"required"`
+	Action   string `json:"action" binding:"required"`
+	Owner    string `json:"owner"`
+}
+
+type CheckPermissionResponse struct {
+	Allowed     bool   `json:"allowed"`
+	Role        string `json:"role"`
+	Resource    string `json:"resource"`
+	Action      string `json:"action"`
+	Explanation string `json:"explanation"`
+}
+
+type ReloadPoliciesResponse struct {
+	Message    string `json:"message"`
+	Policies   int    `json:"policies_count"`
+	ReloadedAt string `json:"reloaded_at"`
+}

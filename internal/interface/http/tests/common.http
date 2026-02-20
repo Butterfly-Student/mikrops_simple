@@ -1,0 +1,45 @@
+# include common.http
+
+# =============================================================================
+# AUTHENTICATION ENDPOINTS
+# =============================================================================
+
+@baseUrl = {{$dotenv baseUrl}}
+
+### Admin Login
+# @name adminLogin
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "password123"
+}
+
+> {%
+    client.global.set("adminToken", response.body.data.token);
+%}
+
+### Admin Logout
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Get Current Admin Profile
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### Portal Login (Customer)
+# @name portalLogin
+POST {{baseUrl}}/portal/login
+Content-Type: {{contentType}}
+
+{
+  "username": "johndoe",
+  "password": "customerpass123"
+}
+
+> {%
+    client.global.set("portalToken", response.body.data.token);
+%}

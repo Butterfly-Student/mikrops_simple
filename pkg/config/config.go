@@ -11,6 +11,7 @@ type Config struct {
 	Server   ServerConfig   `mapstructure:"server"`
 	Database DatabaseConfig `mapstructure:"database"`
 	JWT      JWTConfig      `mapstructure:"jwt"`
+	RBAC     RBACConfig     `mapstructure:"rbac"`
 	Mikrotik MikrotikConfig `mapstructure:"mikrotik"`
 	GenieACS GenieACSConfig `mapstructure:"genieacs"`
 	WhatsApp WhatsAppConfig `mapstructure:"whatsapp"`
@@ -69,6 +70,42 @@ type TripayConfig struct {
 	PrivateKey   string `mapstructure:"private_key"`
 	MerchantCode string `mapstructure:"merchant_code"`
 	Mode         string `mapstructure:"mode"`
+}
+
+type RBACConfig struct {
+	DefaultSuperAdmin DefaultSuperAdminConfig `mapstructure:"default_superadmin"`
+	Casbin            CasbinConfig            `mapstructure:"casbin"`
+	EventSystem       EventSystemConfig       `mapstructure:"event_system"`
+	Audit             AuditConfig             `mapstructure:"audit"`
+}
+
+type DefaultSuperAdminConfig struct {
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	Email    string `mapstructure:"email"`
+}
+
+type CasbinConfig struct {
+	ModelFile        string `mapstructure:"model_file"`
+	AutoSeedPolicies bool   `mapstructure:"auto_seed_policies"`
+}
+
+type EventSystemConfig struct {
+	Type     string         `mapstructure:"type"`
+	RabbitMQ RabbitMQConfig `mapstructure:"rabbitmq"`
+}
+
+type RabbitMQConfig struct {
+	URL        string `mapstructure:"url"`
+	Exchange   string `mapstructure:"exchange"`
+	Queue      string `mapstructure:"queue"`
+	RoutingKey string `mapstructure:"routing_key"`
+	Durable    bool   `mapstructure:"durable"`
+}
+
+type AuditConfig struct {
+	Enabled  bool   `mapstructure:"enabled"`
+	LogLevel string `mapstructure:"log_level"`
 }
 
 type AppDetails struct {

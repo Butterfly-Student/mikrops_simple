@@ -12,6 +12,7 @@ func LoggingMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		path := c.Request.URL.Path
+		rawQuery := c.Request.URL.RawQuery
 		method := c.Request.Method
 
 		c.Next()
@@ -19,19 +20,31 @@ func LoggingMiddleware() gin.HandlerFunc {
 		latency := time.Since(start)
 		statusCode := c.Writer.Status()
 
+		fullPath := path
+		if rawQuery != "" {
+			fullPath = path + "?" + rawQuery
+		}
+
 		fields := []zap.Field{
 			zap.String("method", method),
-			zap.String("path", path),
+			zap.String("path", fullPath),
 			zap.Int("status", statusCode),
 			zap.Duration("latency", latency),
 			zap.String("ip", c.ClientIP()),
-			zap.String("user_agent", c.Request.UserAgent()),
 		}
 
-		if statusCode >= 400 {
-			logger.Error("HTTP Request Error", fields...)
-		} else {
-			logger.Info("HTTP Request", fields...)
+		// Attach gin error messages (if any handler set them)
+		if errs := c.Errors.ByType(gin.ErrorTypePrivate); len(errs) > 0 {
+			fields = append(fields, zap.String("errors", errs.String()))
+		}
+
+		switch {
+		case statusCode >= 500:
+			logger.Error("HTTP 5xx", fields...)
+		case statusCode >= 400:
+			logger.Warn("HTTP 4xx", fields...)
+		default:
+			logger.Info("HTTP 2xx/3xx", fields...)
 		}
 	}
 }

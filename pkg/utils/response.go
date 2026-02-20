@@ -8,6 +8,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+func GetCurrentTimestamp() string {
+	return time.Now().Format(time.RFC3339)
+}
+
 type Claims struct {
 	UserID   uint   `json:"user_id"`
 	Username string `json:"username"`

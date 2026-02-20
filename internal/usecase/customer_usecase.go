@@ -1,12 +1,16 @@
 package usecase
 
 import (
+	"fmt"
+
 	"github.com/alijayanet/gembok-backend/internal/domain/entities"
 	"github.com/alijayanet/gembok-backend/internal/infrastructure/external/mikrotik"
 	"github.com/alijayanet/gembok-backend/internal/infrastructure/external/whatsapp"
 	"github.com/alijayanet/gembok-backend/internal/interface/dto"
+	"github.com/alijayanet/gembok-backend/pkg/logger"
 
 	"github.com/alijayanet/gembok-backend/internal/domain/repositories"
+	"go.uber.org/zap"
 )
 
 type CustomerUsecase interface {
@@ -96,14 +100,35 @@ func (u *customerUsecase) CreateCustomer(customerDTO *dto.CustomerDetail) error 
 		Longitude:     customerDTO.Longitude,
 	}
 
-	if err := u.customerRepo.Create(customer); err != nil {
-		return err
+	// Step 1: Jika ada PPPoE credentials, daftarkan ke MikroTik TERLEBIH DAHULU.
+	// Jika MikroTik gagal, customer tidak disimpan ke database.
+	if customer.PPPoEUsername != "" && customer.PPPoEPassword != "" {
+		if u.mikrotikService == nil {
+			return fmt.Errorf("mikrotik service tidak tersedia")
+		}
+		logger.Info("Mendaftarkan customer ke MikroTik",
+			zap.String("username", customer.PPPoEUsername),
+			zap.Uint("router_id", customer.RouterID),
+		)
+		if err := u.mikrotikService.CreateCustomerOnMikroTik(customer); err != nil {
+			logger.Error("Gagal mendaftarkan customer ke MikroTik — customer TIDAK disimpan ke database",
+				zap.String("username", customer.PPPoEUsername),
+				zap.Error(err),
+			)
+			return fmt.Errorf("gagal membuat PPPoE user di MikroTik: %w", err)
+		}
+		logger.Info("Berhasil mendaftarkan customer ke MikroTik",
+			zap.String("username", customer.PPPoEUsername),
+		)
 	}
 
-	if customer.PPPoEUsername != "" && customer.PPPoEPassword != "" {
-		if err := u.mikrotikService.CreateCustomerOnMikroTik(customer); err != nil {
-			return err
-		}
+	// Step 2: Simpan ke database setelah MikroTik berhasil (atau tidak ada PPPoE).
+	if err := u.customerRepo.Create(customer); err != nil {
+		logger.Error("Gagal menyimpan customer ke database",
+			zap.String("name", customer.Name),
+			zap.Error(err),
+		)
+		return err
 	}
 
 	if u.whatsappService != nil {

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voucher Batch - {{.BatchName}}</title>
+    <style>
+        @media print {
+            @page {
+                margin: 0;
+                size: A4;
+            }
+            body {
+                -webkit-print-color-adjust: exact;
+            }
+        }
+        
+        .container {
+            padding: 20px;
+        box-sizing: border-box;
+        width: 210mm;
+            margin: 0 auto;
+        display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .voucher {
+            border: 2px solid #000;
+            padding: 15px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            box-sizing: border-box;
+            page-break-inside: avoid;
+        }
+        
+        .logo {
+            max-width: 150px;
+            height: 50px;
+            object-fit: contain;
+            margin-bottom: 8px;
+        }
+        
+        .hotspot-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 5px 0;
+            color: #333;
+        }
+        
+        .qrcode {
+            width: 100px;
+            height: 100px;
+            margin: 5px 0;
+        }
+        
+        .credentials {
+            font-size: 14px;
+            margin: 5px 0;
+        }
+        
+        .credentials strong {
+            color: #000;
+            font-size: 16px;
+        }
+        
+        .info {
+            font-size: 12px;
+            margin: 5px 0;
+            color: #555;
+        }
+        
+        .info p {
+            margin: 2px 0;
+        }
+        
+        .price {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 8px 0;
+            color: #d32f2f;
+        }
+        
+        .batch-info {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 10px;
+            background-color: #f5f5f5;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        
+        .footer {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 10px;
+            color: #999;
+            margin-top: 10px;
+            page-break-after: always;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="batch-info">
+            <h2>{{.HotspotName}} - Voucher Batch</h2>
+            <p><strong>Batch Name:</strong> {{.BatchName}}</p>
+            <p><strong>Generated:</strong> {{.GeneratedAt}}</p>
+            <p><strong>Quantity:</strong> {{.TotalCount}}</p>
+        </div>
+        
+        {{range .Vouchers}}
+        <div class="voucher">
+            {{if .LogoURL}}
+            <img src="{{.LogoURL}}" alt="Logo" class="logo">
+            {{end}}
+            
+            <div class="hotspot-name">Voucher</div>
+            
+            <div class="qrcode">
+                <img src="{{.QRCodeURL}}" alt="QR Code" class="qrcode">
+            </div>
+            
+            <div class="credentials">
+                <p><strong>Username:</strong> {{.Username}}</p>
+                <p><strong>Password:</strong> {{.Password}}</p>
+            </div>
+            
+            <div class="info">
+                <p><strong>Profile:</strong> {{.Profile}}</p>
+                <p><strong>Validity:</strong> {{.Validity}}</p>
+                {{if .TimeLimit}}
+                <p><strong>Time Limit:</strong> {{.TimeLimit}}</p>
+                {{end}}
+                {{if .DataLimit}}
+                <p><strong>Data Limit:</strong> {{.DataLimit}}</p>
+                {{end}}
+            </div>
+            
+            <div class="price">
+                {{.Currency}} {{.Price}}
+            </div>
+        </div>
+        {{end}}
+        
+        <div class="footer">
+            Scan QR codes or connect to: {{.DnsName}} | Generated: {{.GeneratedAt}}
+        </div>
+    </div>
+    
+    <script>
+        window.onload = function() {
+            window.print();
+        };
+    </script>
+</body>
+</html>
